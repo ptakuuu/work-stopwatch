@@ -5,6 +5,7 @@ import { Grid, Button } from "@material-ui/core";
 
 import ProjectsTable from "./ProjectsTable";
 import ProjectDialog from "./ProjectDialog";
+import Stopwatch from "./Stopwatch";
 
 import fire from "../firebase-config";
 
@@ -124,6 +125,11 @@ function HomeView() {
             >
               Add new
             </Button>
+          </Grid>
+        </Grid>
+        <Grid container>
+          <Grid item>
+            <Stopwatch />
           </Grid>
         </Grid>
       </Grid>
