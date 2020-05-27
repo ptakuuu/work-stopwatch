@@ -7,6 +7,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import Checkbox from "@material-ui/core/Checkbox";
 
 const useStyles = makeStyles({
   table: {
@@ -35,17 +36,27 @@ function ProjectsTable(props) {
             <TableCell className={classes.tableHeaderTitle} align="center">
               Hours
             </TableCell>
+            <TableCell className={classes.tableHeaderTitle} align="center">
+              Select
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.projectsData.map((item, id) => (
-            <TableRow key={id}>
-              <TableCell component="th" scope="row">
+          {props.projectsData.map((item, index) => (
+            <TableRow key={index}>
+              <TableCell component="th" scope="row" size="small">
                 1
               </TableCell>
               <TableCell align="center">{item.date}</TableCell>
               <TableCell align="center">{item.name}</TableCell>
               <TableCell align="center">{item.hours}</TableCell>
+              <TableCell align="center">
+                <Checkbox
+                  checked={props.checkedElements[item.id]}
+                  onChange={(e) => props.handleCheck(e, item.id)}
+                  color="primary"
+                />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -8,6 +8,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
+import fire from "../firebase-config";
 
 const useStyles = makeStyles((theme) => ({
   dialog: {},
@@ -31,6 +32,28 @@ function getActualDate() {
 
 function ProjectDialog(props) {
   const classes = useStyles();
+  const db = fire.firestore();
+  const [projectDate, setProjectDate] = React.useState(getActualDate());
+  const [projectName, setProjectName] = React.useState();
+  const [projectHours, setProjectHours] = React.useState();
+
+  function addNewProject() {
+    db.collection("projects")
+      .doc()
+      .set({
+        date: projectDate,
+        name: projectName,
+        hours: projectHours,
+      })
+      .then(() => {
+        console.log("Project succesfully added!");
+        props.updateProjects();
+        props.handleOpenCloseDialog();
+      })
+      .catch((error) => {
+        console.error("Error adding new project: ", error);
+      });
+  }
 
   return (
     <Dialog
@@ -49,18 +72,21 @@ function ProjectDialog(props) {
           type="date"
           className={classes.dialogInput}
           defaultValue={getActualDate()}
+          onChange={(e) => setProjectDate(e.target.value)}
         />
         <TextField
           autoFocus
-          label="Project"
+          label="Name"
           fullWidth
           className={classes.dialogInput}
+          onChange={(e) => setProjectName(e.target.value)}
         />
         <TextField
           label="Hours"
           fullWidth
           type="number"
           className={classes.dialogInput}
+          onChange={(e) => setProjectHours(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
@@ -73,7 +99,7 @@ function ProjectDialog(props) {
         </Button>
         <Button
           variant="contained"
-          onClick={props.handleOpenCloseDialog}
+          onClick={() => addNewProject()}
           color="primary"
         >
           Add

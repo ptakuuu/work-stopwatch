@@ -30,6 +30,7 @@ function HomeView() {
   const [loading, setIsLoading] = React.useState(true);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [projectsData, setProjectsData] = React.useState([]);
+  const [checkedElements, setCheckedElements] = React.useState([]);
 
   React.useEffect(() => {
     if (loading) {
@@ -39,23 +40,69 @@ function HomeView() {
 
   async function getProjects() {
     const projects = await db.collection("projects").get();
-    projects.docs.map((item) => projectsData.push(item.data()));
+    projects.docs.map((item) =>
+      projectsData.push({
+        ...item.data(),
+        id: item.id,
+      })
+    );
     setIsLoading(false);
   }
 
-  const handleOpenCloseDialog = () => {
+  function updateProjects() {
+    db.collection("projects").onSnapshot(function (querySnapshot) {
+      var projects = [];
+      querySnapshot.forEach(function (doc) {
+        projects.push(doc.data());
+      });
+      setProjectsData(projects);
+    });
+  }
+
+  function handleOpenCloseDialog() {
     setOpenDialog(!openDialog);
-  };
+  }
+
+  function handleCheck(event, id) {
+    let checkedElementsCopy = checkedElements;
+    if (checkedElementsCopy.includes(id)) {
+      checkedElementsCopy = checkedElementsCopy.filter((item) => item !== id);
+    } else {
+      checkedElementsCopy.push(id);
+    }
+    setCheckedElements(checkedElementsCopy);
+    console.log(checkedElements);
+  }
+
+  function deleteItems(ids) {
+    ids.map((item) => {
+      db.collection("projects")
+        .doc(item)
+        .delete()
+        .then(function () {
+          console.log("Document successfully deleted!");
+        })
+        .catch(function (error) {
+          console.error("Error removing document: ", error);
+        });
+      updateProjects();
+    });
+  }
 
   return !loading ? (
     <Grid container justify="center">
       <ProjectDialog
         openDialog={openDialog}
         handleOpenCloseDialog={handleOpenCloseDialog}
+        updateProjects={updateProjects}
       />
       <Grid container item md={10} className={classes.tableItem}>
         <Grid item xs={12}>
-          <ProjectsTable projectsData={projectsData} />
+          <ProjectsTable
+            projectsData={projectsData}
+            checkedElements={checkedElements}
+            handleCheck={handleCheck}
+          />
         </Grid>
         <Grid
           container
@@ -63,14 +110,27 @@ function HomeView() {
           xs={12}
           justify="flex-end"
           className={classes.buttonsContainer}
+          spacing={2}
         >
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenCloseDialog}
-          >
-            Add new
-          </Button>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => deleteItems(checkedElements)}
+              disabled={!checkedElements.length}
+            >
+              Delete
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenCloseDialog}
+            >
+              Add new
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
