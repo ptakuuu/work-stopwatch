@@ -30,7 +30,7 @@ function HomeView() {
   const [loading, setIsLoading] = React.useState(true);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [projectsData, setProjectsData] = React.useState([]);
-  const [checkedElements, setCheckedElements] = React.useState([]);
+  const [checkedElement, setCheckedElement] = React.useState(null);
 
   React.useEffect(() => {
     if (loading) {
@@ -39,68 +39,52 @@ function HomeView() {
   }, []);
 
   async function getProjects() {
-    const projects = await db.collection("projects").get();
-    projects.docs.map((item) =>
-      projectsData.push({
+    const firebaseProjects = await db.collection("projects").get();
+    let projects = [];
+    firebaseProjects.docs.map((item) =>
+      projects.push({
         ...item.data(),
         id: item.id,
       })
     );
+    setProjectsData(projects);
     setIsLoading(false);
-  }
-
-  function updateProjects() {
-    db.collection("projects").onSnapshot(function (querySnapshot) {
-      var projects = [];
-      querySnapshot.forEach(function (doc) {
-        projects.push(doc.data());
-      });
-      setProjectsData(projects);
-    });
   }
 
   function handleOpenCloseDialog() {
     setOpenDialog(!openDialog);
   }
 
-  function handleCheck(event, id) {
-    let checkedElementsCopy = checkedElements;
-    if (checkedElementsCopy.includes(id)) {
-      checkedElementsCopy = checkedElementsCopy.filter((item) => item !== id);
-    } else {
-      checkedElementsCopy.push(id);
-    }
-    setCheckedElements(checkedElementsCopy);
-    console.log(checkedElements);
+  function handleCheck(id) {
+    setCheckedElement(id);
   }
 
-  function deleteItems(ids) {
-    ids.map((item) => {
-      db.collection("projects")
-        .doc(item)
-        .delete()
-        .then(function () {
-          console.log("Document successfully deleted!");
-        })
-        .catch(function (error) {
-          console.error("Error removing document: ", error);
-        });
-      updateProjects();
-    });
+  function deleteItem() {
+    db.collection("projects")
+      .doc(checkedElement)
+      .delete()
+      .then(() => {
+        setCheckedElement(null);
+        getProjects();
+        console.log("Document successfully deleted!");
+      })
+      .catch((error) => {
+        console.error("Error removing document: ", error);
+      });
   }
 
   return !loading ? (
-    <Grid container justify="center">
+    <Grid container justify='center'>
       <ProjectDialog
         openDialog={openDialog}
         handleOpenCloseDialog={handleOpenCloseDialog}
-        updateProjects={updateProjects}
+        getProjects={getProjects}
       />
       <Grid container item md={10} className={classes.tableItem}>
         <Grid item xs={12}>
           <ProjectsTable
             projectsData={projectsData}
-            checkedElements={checkedElements}
+            checkedElement={checkedElement}
             handleCheck={handleCheck}
           />
         </Grid>
@@ -108,24 +92,34 @@ function HomeView() {
           container
           item
           xs={12}
-          justify="flex-end"
+          justify='flex-end'
           className={classes.buttonsContainer}
           spacing={2}
         >
           <Grid item>
             <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => deleteItems(checkedElements)}
-              disabled={!checkedElements.length}
+              variant='contained'
+              color='default'
+              // onClick={() => deleteItem()}
+              disabled={!checkedElement}
+            >
+              Start timing
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant='contained'
+              color='secondary'
+              onClick={() => deleteItem()}
+              disabled={!checkedElement}
             >
               Delete
             </Button>
           </Grid>
           <Grid item>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               onClick={handleOpenCloseDialog}
             >
               Add new

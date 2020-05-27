@@ -34,8 +34,8 @@ function ProjectDialog(props) {
   const classes = useStyles();
   const db = fire.firestore();
   const [projectDate, setProjectDate] = React.useState(getActualDate());
-  const [projectName, setProjectName] = React.useState();
-  const [projectHours, setProjectHours] = React.useState();
+  const [projectName, setProjectName] = React.useState("");
+  const [projectHours, setProjectHours] = React.useState("");
 
   function addNewProject() {
     db.collection("projects")
@@ -47,7 +47,10 @@ function ProjectDialog(props) {
       })
       .then(() => {
         console.log("Project succesfully added!");
-        props.updateProjects();
+        setProjectDate(getActualDate());
+        setProjectName("");
+        setProjectHours("");
+        props.getProjects();
         props.handleOpenCloseDialog();
       })
       .catch((error) => {
@@ -59,7 +62,7 @@ function ProjectDialog(props) {
     <Dialog
       open={props.openDialog}
       onClose={props.handleOpenCloseDialog}
-      aria-labelledby="form-dialog-title"
+      aria-labelledby='form-dialog-title'
       fullWidth
       maxWidth={"sm"}
       className={classes.dialog}
@@ -67,40 +70,40 @@ function ProjectDialog(props) {
       <DialogTitle className={classes.dialogTitle}>Add new project</DialogTitle>
       <DialogContent className={classes.dialogContent}>
         <TextField
-          label="Date"
+          label='Date'
           fullWidth
-          type="date"
+          type='date'
           className={classes.dialogInput}
           defaultValue={getActualDate()}
           onChange={(e) => setProjectDate(e.target.value)}
         />
         <TextField
           autoFocus
-          label="Name"
+          label='Name'
           fullWidth
           className={classes.dialogInput}
           onChange={(e) => setProjectName(e.target.value)}
         />
         <TextField
-          label="Hours"
+          label='Hours'
           fullWidth
-          type="number"
+          type='number'
           className={classes.dialogInput}
           onChange={(e) => setProjectHours(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={props.handleOpenCloseDialog}
-          color="secondary"
+          color='secondary'
         >
           Cancel
         </Button>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={() => addNewProject()}
-          color="primary"
+          color='primary'
         >
           Add
         </Button>

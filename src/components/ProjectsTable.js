@@ -23,20 +23,20 @@ function ProjectsTable(props) {
 
   return (
     <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="simple table">
+      <Table className={classes.table} aria-label='simple table'>
         <TableHead>
           <TableRow>
             <TableCell className={classes.tableHeaderTitle}>Lp.</TableCell>
-            <TableCell className={classes.tableHeaderTitle} align="center">
+            <TableCell className={classes.tableHeaderTitle} align='center'>
               Date
             </TableCell>
-            <TableCell className={classes.tableHeaderTitle} align="center">
+            <TableCell className={classes.tableHeaderTitle} align='center'>
               Project
             </TableCell>
-            <TableCell className={classes.tableHeaderTitle} align="center">
+            <TableCell className={classes.tableHeaderTitle} align='center'>
               Hours
             </TableCell>
-            <TableCell className={classes.tableHeaderTitle} align="center">
+            <TableCell className={classes.tableHeaderTitle} align='center'>
               Select
             </TableCell>
           </TableRow>
@@ -44,17 +44,17 @@ function ProjectsTable(props) {
         <TableBody>
           {props.projectsData.map((item, index) => (
             <TableRow key={index}>
-              <TableCell component="th" scope="row" size="small">
-                1
+              <TableCell component='th' scope='row' size='small'>
+                {index + 1}
               </TableCell>
-              <TableCell align="center">{item.date}</TableCell>
-              <TableCell align="center">{item.name}</TableCell>
-              <TableCell align="center">{item.hours}</TableCell>
-              <TableCell align="center">
+              <TableCell align='center'>{item.date}</TableCell>
+              <TableCell align='center'>{item.name}</TableCell>
+              <TableCell align='center'>{item.hours}</TableCell>
+              <TableCell align='center'>
                 <Checkbox
-                  checked={props.checkedElements[item.id]}
-                  onChange={(e) => props.handleCheck(e, item.id)}
-                  color="primary"
+                  checked={props.checkedElement === item.id}
+                  onChange={() => props.handleCheck(item.id)}
+                  color='primary'
                 />
               </TableCell>
             </TableRow>
