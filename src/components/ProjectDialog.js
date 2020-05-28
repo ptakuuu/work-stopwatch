@@ -5,9 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Grid from "@material-ui/core/Grid";
 import fire from "../firebase-config";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,7 +33,7 @@ function ProjectDialog(props) {
   const db = fire.firestore();
   const [projectDate, setProjectDate] = React.useState(getActualDate());
   const [projectName, setProjectName] = React.useState("");
-  const [projectHours, setProjectHours] = React.useState("");
+  const [projectHours, setProjectHours] = React.useState(0);
 
   function addNewProject() {
     db.collection("projects")
@@ -49,7 +47,7 @@ function ProjectDialog(props) {
         console.log("Project succesfully added!");
         setProjectDate(getActualDate());
         setProjectName("");
-        setProjectHours("");
+        setProjectHours(0);
         props.getProjects();
         props.handleOpenCloseDialog();
       })
@@ -88,6 +86,7 @@ function ProjectDialog(props) {
           label='Hours'
           fullWidth
           type='number'
+          defaultValue={0}
           className={classes.dialogInput}
           onChange={(e) => setProjectHours(e.target.value)}
         />

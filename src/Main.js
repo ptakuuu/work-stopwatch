@@ -1,17 +1,15 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import routes from "./routes";
 import { Redirect, Switch, Route, withRouter } from "react-router-dom";
 import {
   CircularProgress,
+  Snackbar,
   AppBar,
   Toolbar,
-  IconButton,
   Typography,
   Button,
-  Container,
 } from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
 import LoginView from "./components/LoginView";
 
 const useStyles = makeStyles((theme) => ({
@@ -46,16 +44,16 @@ function Main(props) {
         {!isAuthenticated ? (
           <>
             <Route
-              path="/login"
+              path='/login'
               exact
               component={() => <LoginView authenticate={authenticate} />}
             />
-            <Redirect to="/login" />
+            <Redirect to='/login' />
           </>
         ) : (
           routes.map((route, id) => (
             <Fragment key={id}>
-              <AppBar position="static">
+              <AppBar position='static'>
                 <Toolbar>
                   {/* <IconButton
                     edge="start"
@@ -65,13 +63,13 @@ function Main(props) {
                   >
                     <MenuIcon />
                   </IconButton> */}
-                  <Typography variant="h6">🦉</Typography>
-                  <Typography variant="h6" className={classes.title}>
+                  <Typography variant='h6'>🦉</Typography>
+                  <Typography variant='h6' className={classes.title}>
                     Projects
                   </Typography>
                   <Button
-                    variant="contained"
-                    color="secondary"
+                    variant='contained'
+                    color='secondary'
                     onClick={() => logout()}
                   >
                     Logout
