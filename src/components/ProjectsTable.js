@@ -49,7 +49,13 @@ function ProjectsTable(props) {
               </TableCell>
               <TableCell align='center'>{item.date}</TableCell>
               <TableCell align='center'>{item.name}</TableCell>
-              <TableCell align='center'>{item.hours}</TableCell>
+              <TableCell align='center'>
+                {`${item.time.hours}.${
+                  item.time.minutes < 10
+                    ? "0" + item.time.minutes
+                    : item.time.minutes
+                }`}
+              </TableCell>
               <TableCell align='center'>
                 <Checkbox
                   checked={props.checkedElement === item.id}

@@ -13,6 +13,7 @@ function Stopwatch(props) {
   const [showTime, setShowTime] = React.useState("00 : 00 : 00");
   const [t, setT] = React.useState();
   const [started, setStarted] = React.useState(false);
+  const [stopped, setStopped] = React.useState(false);
 
   let hours = 0;
   let minutes = 0;
@@ -20,6 +21,7 @@ function Stopwatch(props) {
 
   function stopTimer() {
     clearInterval(t);
+    setStopped(true);
     setStarted(false);
   }
 
@@ -54,7 +56,7 @@ function Stopwatch(props) {
           minutes < 10 ? "0" + minutes : minutes
         } : ${seconds < 10 ? "0" + seconds : seconds}`
       );
-    }, 1);
+    }, 0.001);
 
     setT(t);
   }
@@ -81,7 +83,7 @@ function Stopwatch(props) {
             variant='contained'
             color='default'
             onClick={() => clearTimer()}
-            disabled={!started}
+            disabled={started || !stopped}
           >
             Clear
           </Button>
@@ -92,7 +94,7 @@ function Stopwatch(props) {
               variant='contained'
               color='secondary'
               onClick={() => props.addHours(showTime)}
-              disabled={started}
+              disabled={started || !stopped}
             >
               Add
             </Button>

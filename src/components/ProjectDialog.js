@@ -25,7 +25,13 @@ function getActualDate() {
   let today = new Date();
   let month = today.getMonth() + 1;
   if (month < 10) month = `0` + month;
-  return today.getFullYear() + "-" + month + "-" + today.getDate();
+  return (
+    today.getFullYear() +
+    "-" +
+    month +
+    "-" +
+    (today.getDate() < 10 ? "0" + today.getDate() : today.getDate())
+  );
 }
 
 function ProjectDialog(props) {
@@ -33,7 +39,7 @@ function ProjectDialog(props) {
   const db = fire.firestore();
   const [projectDate, setProjectDate] = React.useState(getActualDate());
   const [projectName, setProjectName] = React.useState("");
-  const [projectHours, setProjectHours] = React.useState(0);
+  const [projectTime, setProjectTime] = React.useState("00.00");
 
   function addNewProject() {
     db.collection("projects")
@@ -41,13 +47,16 @@ function ProjectDialog(props) {
       .set({
         date: projectDate,
         name: projectName,
-        hours: projectHours,
+        time: {
+          hours: parseInt(projectTime.substr(0, 2)),
+          minutes: parseInt(projectTime.substr(3, 2)),
+        },
       })
       .then(() => {
         console.log("Project succesfully added!");
         setProjectDate(getActualDate());
         setProjectName("");
-        setProjectHours(0);
+        setProjectTime("00.00");
         props.getProjects();
         props.handleOpenCloseDialog();
       })
@@ -86,9 +95,9 @@ function ProjectDialog(props) {
           label='Hours'
           fullWidth
           type='number'
-          defaultValue={0}
+          defaultValue={projectTime}
           className={classes.dialogInput}
-          onChange={(e) => setProjectHours(e.target.value)}
+          onChange={(e) => setProjectTime(e.target.value)}
         />
       </DialogContent>
       <DialogActions>

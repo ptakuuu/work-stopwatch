@@ -36,16 +36,16 @@ function HomeView(props) {
   const [openDialog, setOpenDialog] = React.useState(false);
   const [projectsData, setProjectsData] = React.useState([]);
   const [checkedElement, setCheckedElement] = React.useState(null);
-  const [selectedProject, setSelectedProject] = React.useState();
+  const [selectedProject, setSelectedProject] = React.useState(null);
   const [showTimer, setShowTimer] = React.useState();
   const [stopWatchExtended, setStopWatchExtended] = React.useState(false);
-  const [showSnackbar, setShowSackbar] = React.useState(false);
+  const [showSnackbar, setShowSnackbar] = React.useState(false);
 
   React.useEffect(() => {
     if (loading) {
       getProjects();
     }
-  }, []);
+  }, [loading]);
 
   async function getProjects() {
     const firebaseProjects = await db.collection("projects").get();
@@ -60,8 +60,15 @@ function HomeView(props) {
     setIsLoading(false);
   }
 
-  async function getAtualProject() {
-    let project = await db.collection("projects").doc(checkedElement).get();
+  async function getActualProject(id) {
+    let project;
+
+    if (id) {
+      project = await db.collection("projects").doc(id).get();
+    } else {
+      project = await db.collection("projects").doc(checkedElement).get();
+    }
+
     project = project.data();
     setSelectedProject(project);
   }
@@ -71,7 +78,9 @@ function HomeView(props) {
   }
 
   function handleCheck(id) {
+    setShowTimer(false);
     setCheckedElement(id);
+    getActualProject(id);
   }
 
   function deleteItem() {
@@ -89,19 +98,43 @@ function HomeView(props) {
   }
 
   function setActualProject() {
-    getAtualProject();
+    getActualProject();
     setShowTimer(true);
   }
 
-  function addHours(time) {
-    const hours = `${time.substr(0, 2)}.${time.substr(5, 2)}`;
-    const project = db.collection("projects").doc(checkedElement);
-    const parsedHours = parseFloat(selectedProject.hours) + parseFloat(hours);
-    console.log(project.hours);
-    console.log(parsedHours);
-    project.update({ hours: parsedHours });
-    setShowSackbar(true);
+  async function addHours(time) {
+    let hoursToAdd = parseFloat(time.substr(0, 2));
+    let minutesToAdd = parseFloat(time.substr(5, 2));
+    let project = await db.collection("projects").doc(checkedElement);
+    let projectElements = await db
+      .collection("projects")
+      .doc(checkedElement)
+      .get();
+    projectElements = projectElements.data();
+
+    hoursToAdd += projectElements.time.hours;
+    minutesToAdd += projectElements.time.minutes;
+
+    if (minutesToAdd >= 60) {
+      hoursToAdd += 1;
+      minutesToAdd -= 60;
+    }
+
+    project.update({
+      time: {
+        hours: hoursToAdd,
+        minutes: minutesToAdd,
+      },
+    });
+
+    setShowSnackbar(true);
     getProjects();
+    setShowTimer(false);
+    setSelectedProject(null);
+    setCheckedElement(null);
+    setTimeout(() => {
+      setShowSnackbar(false);
+    }, 3000);
   }
 
   return !loading ? (
@@ -152,7 +185,7 @@ function HomeView(props) {
                 variant='contained'
                 color='default'
                 onClick={() => setActualProject()}
-                disabled={!checkedElement}
+                disabled={!checkedElement || showTimer}
               >
                 Timing
               </Button>
