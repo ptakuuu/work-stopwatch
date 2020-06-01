@@ -103,6 +103,7 @@ function HomeView(props) {
   }
 
   async function addHours(time) {
+    let projectsDataCopy = JSON.parse(JSON.stringify(projectsData));
     let hoursToAdd = parseFloat(time.substr(0, 2));
     let minutesToAdd = parseFloat(time.substr(5, 2));
     let project = await db.collection("projects").doc(checkedElement);
@@ -127,11 +128,19 @@ function HomeView(props) {
       },
     });
 
+    let projectToUpdate = projectsDataCopy.find(
+      (item) => item.id === checkedElement
+    );
+    projectToUpdate.time = {
+      hours: hoursToAdd,
+      minutes: minutesToAdd,
+    };
+
     setShowSnackbar(true);
-    getProjects();
     setShowTimer(false);
-    setSelectedProject(null);
-    setCheckedElement(null);
+    setProjectsData(projectsDataCopy);
+    setSelectedProject();
+    setCheckedElement();
     setTimeout(() => {
       setShowSnackbar(false);
     }, 3000);
