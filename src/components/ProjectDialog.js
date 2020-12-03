@@ -9,6 +9,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Grid from "@material-ui/core/Grid";
 import fire from "../firebase-config";
+import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
   dialog: {},
@@ -46,7 +47,6 @@ function ProjectDialog(props) {
         hours: projectHours,
       })
       .then(() => {
-        console.log("Project succesfully added!");
         props.updateProjects();
         props.handleOpenCloseDialog();
       })
@@ -70,8 +70,9 @@ function ProjectDialog(props) {
           label="Date"
           fullWidth
           type="date"
+          format="yyyy-MM-dd"
           className={classes.dialogInput}
-          defaultValue={getActualDate()}
+          defaultValue={moment().local().format("yyyy-MM-DD")}
           onChange={(e) => setProjectDate(e.target.value)}
         />
         <TextField
@@ -90,11 +91,7 @@ function ProjectDialog(props) {
         />
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="contained"
-          onClick={props.handleOpenCloseDialog}
-          color="secondary"
-        >
+        <Button variant="contained" onClick={props.handleOpenCloseDialog}>
           Cancel
         </Button>
         <Button

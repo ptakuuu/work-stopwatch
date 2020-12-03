@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import {
@@ -49,11 +49,12 @@ function Copyright() {
 
 function LoginView(props) {
   const classes = useStyles();
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
 
   function logIn(e) {
     e.preventDefault();
-    props.authenticate();
-    props.history.replace("home");
+    props.authenticate(email, password);
   }
 
   return (
@@ -79,6 +80,7 @@ function LoginView(props) {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                onChange={(e) => setEmail(e.target.value)}
               />
               <TextField
                 variant="outlined"
@@ -90,6 +92,7 @@ function LoginView(props) {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
               />
               <Grid container justify="center">
                 <Grid item md={6}>

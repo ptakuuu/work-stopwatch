@@ -1,6 +1,6 @@
 import React from "react";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-import { Router } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import { createBrowserHistory } from "history";
 
 import Main from "./Main";

@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import LoginView from "./components/LoginView";
+import firebase from "firebase";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -30,13 +31,36 @@ const useStyles = makeStyles((theme) => ({
 function Main(props) {
   const classes = useStyles();
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  function authenticate() {
-    setIsAuthenticated(true);
+  const authenticate = () => {
+    firebase.auth().onAuthStateChanged((userObject) => {
+      if (userObject) {
+        setUser(userObject);
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    authenticate();
+  }, []);
+
+  async function signIn(email, password) {
+    if (email && password) {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      setIsAuthenticated(true);
+      props.history.replace("/home");
+    } else {
+      console.log("Missing fields");
+    }
   }
 
-  function logout() {
+  async function logout() {
+    await firebase.auth().signOut();
     setIsAuthenticated(false);
   }
 
@@ -48,7 +72,7 @@ function Main(props) {
             <Route
               path="/login"
               exact
-              component={() => <LoginView authenticate={authenticate} />}
+              component={() => <LoginView authenticate={signIn} />}
             />
             <Redirect to="/login" />
           </>
@@ -67,11 +91,11 @@ function Main(props) {
                   </IconButton> */}
                   <Typography variant="h6">🦉</Typography>
                   <Typography variant="h6" className={classes.title}>
-                    Projects
+                    Hours
                   </Typography>
                   <Button
                     variant="contained"
-                    color="secondary"
+                    color="default"
                     onClick={() => logout()}
                   >
                     Logout
@@ -85,6 +109,7 @@ function Main(props) {
                   exact
                   component={route.component}
                 />
+                <Redirect to={route.path} />
               </div>
             </Fragment>
           ))

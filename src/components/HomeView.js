@@ -5,6 +5,7 @@ import { Grid, Button } from "@material-ui/core";
 
 import ProjectsTable from "./ProjectsTable";
 import ProjectDialog from "./ProjectDialog";
+import RemoveProjectDialog from "./RemoveProjectDialog";
 
 import fire from "../firebase-config";
 
@@ -29,65 +30,80 @@ function HomeView() {
   const classes = useStyles();
   const [loading, setIsLoading] = React.useState(true);
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [deleteProjectDialogOpen, setDeleteProjectDialogOpen] = React.useState(
+    false
+  );
   const [projectsData, setProjectsData] = React.useState([]);
   const [checkedElements, setCheckedElements] = React.useState([]);
+  const [removedItemId, setRemovedItemId] = React.useState(null);
 
   React.useEffect(() => {
     if (loading) {
-      getProjects();
+      updateProjects();
     }
   }, []);
 
-  async function getProjects() {
-    const projects = await db.collection("projects").get();
-    projects.docs.map((item) =>
-      projectsData.push({
-        ...item.data(),
-        id: item.id,
-      })
-    );
-    setIsLoading(false);
-  }
+  // async function getProjects() {
+  //   const projects = await db.collection("projects").get();
+
+  //   projects.docs.map((item) =>
+  //     projectsData.push({
+  //       ...item.data(),
+  //       id: item.id,
+  //     })
+  //   );
+  //   setIsLoading(false);
+  // }
 
   function updateProjects() {
-    db.collection("projects").onSnapshot(function (querySnapshot) {
-      var projects = [];
-      querySnapshot.forEach(function (doc) {
-        projects.push(doc.data());
+    let elements = [];
+    db.collection("projects")
+      .orderBy("date", "desc")
+      .get()
+      .then(function (querySnapshot) {
+        querySnapshot.forEach((doc) => {
+          elements.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        setProjectsData(elements);
+        setIsLoading(false);
       });
-      setProjectsData(projects);
-    });
   }
 
   function handleOpenCloseDialog() {
     setOpenDialog(!openDialog);
   }
 
-  function handleCheck(event, id) {
+  function handleCheck(id) {
     let checkedElementsCopy = checkedElements;
     if (checkedElementsCopy.includes(id)) {
       checkedElementsCopy = checkedElementsCopy.filter((item) => item !== id);
     } else {
       checkedElementsCopy.push(id);
     }
+    // console.log(checkedElementsCopy);
     setCheckedElements(checkedElementsCopy);
-    console.log(checkedElements);
   }
 
-  function deleteItems(ids) {
-    ids.map((item) => {
-      db.collection("projects")
-        .doc(item)
-        .delete()
-        .then(function () {
-          console.log("Document successfully deleted!");
-        })
-        .catch(function (error) {
-          console.error("Error removing document: ", error);
-        });
-      updateProjects();
-    });
+  function deleteItem(id) {
+    db.collection("projects")
+      .doc(removedItemId)
+      .delete()
+      .then(function () {
+        updateProjects();
+        setDeleteProjectDialogOpen(false);
+      })
+      .catch(function (error) {
+        console.error("Error removing document: ", error);
+      });
   }
+
+  const handleOpenCloseDeleteDialog = (id) => {
+    setRemovedItemId(id);
+    setDeleteProjectDialogOpen(!deleteProjectDialogOpen);
+  };
 
   return !loading ? (
     <Grid container justify="center">
@@ -96,12 +112,19 @@ function HomeView() {
         handleOpenCloseDialog={handleOpenCloseDialog}
         updateProjects={updateProjects}
       />
+      <RemoveProjectDialog
+        openDialog={deleteProjectDialogOpen}
+        handleOpenCloseDialog={handleOpenCloseDeleteDialog}
+        updateProjects={updateProjects}
+        deleteItem={deleteItem}
+      />
       <Grid container item md={10} className={classes.tableItem}>
         <Grid item xs={12}>
           <ProjectsTable
             projectsData={projectsData}
             checkedElements={checkedElements}
             handleCheck={handleCheck}
+            handleOpenCloseDeleteDialog={handleOpenCloseDeleteDialog}
           />
         </Grid>
         <Grid
@@ -112,16 +135,6 @@ function HomeView() {
           className={classes.buttonsContainer}
           spacing={2}
         >
-          <Grid item>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => deleteItems(checkedElements)}
-              disabled={!checkedElements.length}
-            >
-              Delete
-            </Button>
-          </Grid>
           <Grid item>
             <Button
               variant="contained"

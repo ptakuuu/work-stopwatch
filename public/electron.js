@@ -6,14 +6,15 @@ function createWindow() {
   // Create browser window
   const win = new BrowserWindow({
     backgroundColor: "#fff",
-    width: 1600,
+    width: 1680,
     // width: 1000,
     // height: 600,
-    height: 800,
+    height: 1050,
     // resizable: false,
+
     webPreferences: {
       nodeIntegration: true,
-      //   devTools: false,
+      // devTools: false,
     },
   });
 
