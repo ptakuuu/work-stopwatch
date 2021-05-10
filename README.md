@@ -1,5 +1,5 @@
 # work-stopwatch
-Electron + react + firebase app for managing working hours.
+Electron + react (front-end) + firebase (database + authorization) app for managing working hours.
 
 # Images
 <img src="https://i.imgur.com/kChZLtn.png" width="1000" height="600"/>
